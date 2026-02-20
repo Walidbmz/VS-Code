@@ -1,5 +1,12 @@
 // Socket.io Connection
-const socket = io();
+// Update this URL to your Render server URL (e.g., https://domino-game-server-xyz.onrender.com)
+const SOCKET_SERVER_URL = 'http://localhost:3000'; // Replace with your Render URL
+const socket = io(SOCKET_SERVER_URL, {
+    reconnection: true,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000,
+    reconnectionAttempts: 5
+});
 
 // Game State
 let gameState = {
@@ -71,7 +78,7 @@ function renderPips(number) {
         for (let j = 0; j < 3; j++) {
             const hasPip = positions.some(p => p[0] === i && p[1] === j);
             if (hasPip) {
-                html += '<div class="domino-pip"></div>';
+                html += '<div><div class="domino-pip"></div></div>';
             } else {
                 html += '<div></div>';  // Empty placeholder to maintain grid
             }
@@ -253,17 +260,8 @@ function updatePlayers() {
         // Top player (opponent directly across from you)
         const topPlayer = gameState.players[topIdx];
         const topTeamClass = topPlayer.teamId === 0 ? 'team1' : 'team2';
-        const topPlayerHtml = `
-            <div class="top-player-display">
-                <div class="player-name ${topTeamClass}">${topPlayer.name}</div>
-                <div class="tile-count">${topPlayer.handSize} tiles</div>
-            </div>
-        `;
-        // Insert top player display in chain area
-        const chainContainer = document.querySelector('.chain-container');
-        const existingTop = document.querySelector('.top-player-display');
-        if (existingTop) existingTop.remove();
-        chainContainer.insertAdjacentHTML('afterbegin', topPlayerHtml);
+        document.getElementById('playerTop').innerHTML = 
+            `<div class="player-name ${topTeamClass}">${topPlayer.name}</div><div class="tile-count">${topPlayer.handSize} tiles</div>`;
 
         // Bottom player (human player)
         const bottomPlayer = gameState.players[gameState.playerId];
@@ -281,8 +279,6 @@ function updateChain() {
         chainDisplay.innerHTML = '<div class="empty-chain">Waiting for first move...</div>';
         document.getElementById('chainEnds').innerHTML = '';
     } else {
-        // Keep the current orientation system, but let CSS flow position tiles
-        // so they connect without JS-imposed left/top spacing.
         const chainHtml = gameState.chain.map(tile => {
             const isDouble = tile.left === tile.right;
             const orientation = isDouble ? 'horizontal' : 'vertical';
@@ -294,6 +290,18 @@ function updateChain() {
         }).join('');
 
         chainDisplay.innerHTML = chainHtml;
+
+        // Keep the [6|6] tile centered in the board viewport whenever present.
+        const doubleSixTile = chainDisplay.querySelector('.domino[data-left="6"][data-right="6"]');
+        if (doubleSixTile) {
+            requestAnimationFrame(() => {
+                const targetLeft = doubleSixTile.offsetLeft - ((chainDisplay.clientWidth - doubleSixTile.clientWidth) / 2);
+                const targetTop = doubleSixTile.offsetTop - ((chainDisplay.clientHeight - doubleSixTile.clientHeight) / 2);
+
+                chainDisplay.scrollLeft = Math.max(0, targetLeft);
+                chainDisplay.scrollTop = Math.max(0, targetTop);
+            });
+        }
 
         const leftEnd = gameState.chain[0].left;
         const rightEnd = gameState.chain[gameState.chain.length - 1].right;
@@ -442,7 +450,7 @@ function showGameOver() {
 // Show Round End Screen with Countdown
 function showRoundEnd(data) {
     const roundEndScreen = document.getElementById('roundEndScreen');
-    roundEndScreen.style.display = 'flex';
+    roundEndScreen.classList.add('active');
 
     // Clear the visible board/hand while the next round is shuffling
     gameState.chain = [];
@@ -491,7 +499,7 @@ function showRoundEnd(data) {
         
         if (countdownValue <= 0) {
             clearInterval(countdownInterval);
-            roundEndScreen.style.display = 'none';
+            roundEndScreen.classList.remove('active');
         }
     }, 1000);
 }

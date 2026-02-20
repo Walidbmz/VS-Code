@@ -56,7 +56,7 @@
                 <!-- Top Bar -->
                 <div class="top-bar">
                     <div class="round-info">
-                        <span>Round <span id="roundNumber">1</span></span>
+                        <span>🎲 Round <span id="roundNumber">1</span></span>
                     </div>
                     <div class="scores-bar">
                         <div class="score-item team1">
@@ -72,46 +72,49 @@
 
                 <!-- Main Game Area -->
                 <div class="game-area">
-                    <!-- Player Hands Display -->
-                    <div class="players-section">
-                        <!-- Center - Chain and Current Player -->
-                        <div class="center-area">
-                            <!-- Side Players Info - Compact -->
-                            <div class="side-players-compact">
-                                <div class="player-area-compact left">
-                                    <div class="player-info-compact" id="playerLeft">
-                                        <div class="player-name">-</div>
-                                        <div class="tile-count">7 tiles</div>
-                                    </div>
-                                </div>
-                                <div class="player-area-compact right">
-                                    <div class="player-info-compact" id="playerRight">
-                                        <div class="player-name">-</div>
-                                        <div class="tile-count">7 tiles</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Chain Display -->
-                            <div class="chain-container">
-                                <h3>Domino Chain</h3>
-                                <div class="chain" id="chainDisplay">
-                                    <div class="empty-chain">No tiles played yet</div>
-                                </div>
-                                <div class="chain-ends" id="chainEnds"></div>
-                            </div>
+                    <!-- Top Player (Across from You) -->
+                    <div class="player-top">
+                        <div class="player-card" id="playerTop">
+                            <div class="player-name">Player 3</div>
+                            <div class="tile-count">7 tiles</div>
+                        </div>
+                    </div>
 
-                            <!-- Current Player Info -->
-                            <div class="current-player-info">
+                    <!-- Middle Section: Left Player, Chain, Right Player -->
+                    <div class="middle-section">
+                        <!-- Left Player -->
+                        <div class="player-left">
+                            <div class="player-card" id="playerLeft">
+                                <div class="player-name">Player 2</div>
+                                <div class="tile-count">7 tiles</div>
+                            </div>
+                        </div>
+
+                        <!-- Chain Display -->
+                        <div class="chain-section">
+                            <div class="current-turn-indicator">
                                 <div class="player-turn" id="currentPlayer">
-                                    <div class="turn-name">Waiting...</div>
+                                    <span class="turn-name">Waiting...</span>
                                 </div>
+                            </div>
+                            <div class="chain" id="chainDisplay">
+                                <div class="empty-chain">Waiting for first move...</div>
+                            </div>
+                            <div class="chain-ends" id="chainEnds"></div>
+                        </div>
+
+                        <!-- Right Player -->
+                        <div class="player-right">
+                            <div class="player-card" id="playerRight">
+                                <div class="player-name">Player 4</div>
+                                <div class="tile-count">7 tiles</div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Bottom Player Hand -->
-                    <div class="bottom-player">
-                        <div class="player-info-bottom" id="playerBottom">
+                    <!-- Bottom Player (You) -->
+                    <div class="player-bottom">
+                        <div class="player-card-bottom" id="playerBottom">
                             <div class="player-name">You</div>
                             <div class="tile-count">7 tiles</div>
                         </div>
@@ -119,7 +122,7 @@
                             <div class="hand-empty">Your hand</div>
                         </div>
                         <div class="hand-actions">
-                            <button class="btn btn-action" onclick="passTurn()" id="passBtn" disabled>Pass Turn</button>
+                            <button class="btn btn-action" onclick="passTurn()" id="passBtn" disabled>⏭ Pass Turn</button>
                         </div>
                     </div>
                 </div>
