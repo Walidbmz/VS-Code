@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4-Player Domino Game - Online</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Game Header -->
+        <div class="header">
+            <h1>🎲 4-PLAYER DOMINO GAME 🎲</h1>
+            <p class="subtitle">Online Double-Six Tournament</p>
+        </div>
+
+        <!-- Join Lobby Screen -->
+        <div id="joinScreen" class="screen active">
+            <div class="setup-card">
+                <h2>Join Game Lobby</h2>
+                
+                <div class="form-group">
+                    <label>Your Name:</label>
+                    <input type="text" id="playerName" placeholder="Enter your name" maxlength="20">
+                </div>
+
+                <div class="form-group">
+                    <button class="btn btn-primary" onclick="joinGame()">Join Game</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lobby Waiting Screen -->
+        <div id="lobbyScreen" class="screen">
+            <div class="setup-card">
+                <h2>Waiting for Players</h2>
+                
+                <div class="players-list">
+                    <h3>Players Joined:</h3>
+                    <div id="playersList" class="players-grid">
+                        <!-- Players will be added here -->
+                    </div>
+                </div>
+
+                <div class="loading-spinner" id="spinner">
+                    <div class="spinner-dot"></div>
+                    <p id="waitingText">Waiting for other players...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="screen">
+            <div class="game-layout">
+                <!-- Top Bar -->
+                <div class="top-bar">
+                    <div class="round-info">
+                        <span>Round <span id="roundNumber">1</span></span>
+                    </div>
+                    <div class="scores-bar">
+                        <div class="score-item team1">
+                            <span class="score-label">Team 1</span>
+                            <span class="score-value" id="team1Score">0</span>
+                        </div>
+                        <div class="score-item team2">
+                            <span class="score-label">Team 2</span>
+                            <span class="score-value" id="team2Score">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Game Area -->
+                <div class="game-area">
+                    <!-- Player Hands Display -->
+                    <div class="players-section">
+                        <!-- Center - Chain and Current Player -->
+                        <div class="center-area">
+                            <!-- Side Players Info - Compact -->
+                            <div class="side-players-compact">
+                                <div class="player-area-compact left">
+                                    <div class="player-info-compact" id="playerLeft">
+                                        <div class="player-name">-</div>
+                                        <div class="tile-count">7 tiles</div>
+                                    </div>
+                                </div>
+                                <div class="player-area-compact right">
+                                    <div class="player-info-compact" id="playerRight">
+                                        <div class="player-name">-</div>
+                                        <div class="tile-count">7 tiles</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Chain Display -->
+                            <div class="chain-container">
+                                <h3>Domino Chain</h3>
+                                <div class="chain" id="chainDisplay">
+                                    <div class="empty-chain">No tiles played yet</div>
+                                </div>
+                                <div class="chain-ends" id="chainEnds"></div>
+                            </div>
+
+                            <!-- Current Player Info -->
+                            <div class="current-player-info">
+                                <div class="player-turn" id="currentPlayer">
+                                    <div class="turn-name">Waiting...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Player Hand -->
+                    <div class="bottom-player">
+                        <div class="player-info-bottom" id="playerBottom">
+                            <div class="player-name">You</div>
+                            <div class="tile-count">7 tiles</div>
+                        </div>
+                        <div class="hand-container" id="handContainer">
+                            <div class="hand-empty">Your hand</div>
+                        </div>
+                        <div class="hand-actions">
+                            <button class="btn btn-action" onclick="passTurn()" id="passBtn" disabled>Pass Turn</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameOverScreen" class="screen">
+            <div class="modal-overlay">
+                <div class="modal-card game-over-card">
+                    <h1>🎉 GAME OVER! 🎉</h1>
+                    <div id="gameOverResult"></div>
+                    <button class="btn btn-primary" onclick="resetGame()">Play Again</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Round End Screen -->
+        <div id="roundEndScreen" class="modal-overlay-round">
+            <div class="modal-card-round">
+                <h1 id="roundEndTitle">🎯 ROUND WINNER! 🎯</h1>
+                <div class="round-end-content">
+                    <div id="roundEndWinner" class="winner-text"></div>
+                    <div id="roundScores" class="score-display"></div>
+                </div>
+                <div class="countdown-container">
+                    <p class="countdown-text">Next round starts in</p>
+                    <div class="countdown" id="countdown">10</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tile Placement Choice Modal -->
+        <div id="tilePlacementModal" class="placement-modal-overlay">
+            <div class="placement-modal-card">
+                <h2>Where to place the tile?</h2>
+                <p class="placement-text">This tile can be placed on both ends</p>
+                <div class="placement-buttons">
+                    <button class="btn btn-placement btn-left" onclick="handleTilePlacement('left')">
+                        ← LEFT END
+                    </button>
+                    <button class="btn btn-placement btn-right" onclick="handleTilePlacement('right')">
+                        RIGHT END →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification Container -->
+        <div id="toastContainer" class="toast-container"></div>
+    </div>
+
+    <script src="client.js"></script>
+</body>
+</html>
